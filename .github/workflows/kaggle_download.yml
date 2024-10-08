@@ -1,0 +1,31 @@
+name: Download Kaggle Dataset
+
+on:
+  workflow_dispatch: # Allows you to manually trigger the workflow
+
+jobs:
+  download_dataset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Kaggle API client
+        run: pip install kaggle
+
+      - name: Set up Kaggle API credentials
+        run: |
+          mkdir ~/.kaggle
+          echo "{\"username\":\"${{ secrets.KAGGLE_USERNAME }}\",\"key\":\"${{ secrets.KAGGLE_KEY }}\"}" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+
+      - name: Download dataset
+        run: kaggle datasets download -d saurabhshahane/fake-news-classification -p Dataset --unzip
+
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Dataset/
+          git commit -m "Update Kaggle dataset"
+          git push
